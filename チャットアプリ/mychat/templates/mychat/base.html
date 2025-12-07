@@ -1,0 +1,22 @@
+{% load static %}
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    <header class="header">
+        <h1>チャットアプリ</h1>
+    </header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,35 @@
+{% extends "mychat/base.html" %}
+
+{% block title %}メイン画面{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script> 
+{% endblock %}
+
+{% block content %}
+<h1>メイン画面</h1>
+
+
+    
+    {% if username %}
+    <p>ユーザ名：{{ username }}</p>
+    {% endif %}
+
+    {% for room in roomlist%}
+    <form  method="post" action="{%url 'mychat:chat' room.id%}">
+        {% csrf_token %}
+        <p><input type="submit" value="ルーム{{room.name}}"></input></p>
+    </form>
+    {%endfor%}
+
+<hr/>
+
+<p><a href="{% url 'mychat:logout' %}">ログアウト</a></p>
+<p><a href="{% url 'mychat:createroom' %}">新規ルーム登録</a></p>
+
+{% for item in message %}
+{{ item }}<br/>
+{% endfor %}
+
+{% endblock %}

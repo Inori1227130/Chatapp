@@ -1,0 +1,180 @@
+/*/////////////////////////////////////////////////
+//LINE風チャット画面(会話方式)を記事に表示する方法
+/////////////////////////////////////////////////*/
+
+/* チャットエリア全体 */
+.chat__container {
+  padding:0;
+  background: #A4C4E0;
+  overflow: hidden;
+  max-width: 1000px;
+  margin: 20px auto;
+  font-size: 120%;
+}
+
+/* 会話部分 */
+.chat__container .chat__contents {
+  padding: 10px;
+  overflow: hidden;
+  line-height: 135%;
+}
+
+/* 会話ログのスクロール設定 */
+.chat__container .scroll {
+  height: 300px;
+  overflow-y: scroll;
+}
+
+/* スタンプ画像最大幅 */
+.chat__container .stamp img {
+  max-width:150px;
+}
+
+/* 相手の会話 */
+.chat__container .chat__left {
+    width: 100%;
+    position: relative;
+    display: block;
+    margin-bottom: 5px;
+    max-width: 80%;
+    clear: both;
+}
+
+/* アイコン画像 */
+.chat__container .chat__left figure {
+    width: 50px;
+    position: absolute;
+    top: 15px;
+    left: 0;
+    padding: 0;
+    margin: 0;
+
+}
+
+/* 他者の発言エリアに顔画像を置くスペースを設定 */
+.chat__container .chat__left figure img{
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+}
+
+
+/* 他者の発言エリア 1 */
+.chat__container .chat__left .chat__left-text {
+  margin-left: 70px;
+}
+/* 他者の発言エリア 2 */
+.chat__container .chat__left .chat__left-text .name {
+  font-size: 80%;
+  color: #ffffff;
+}
+/* 他者の発言エリア 3 */
+.chat__container .chat__left .text {
+  margin: 0;
+  position: relative;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #ffffff;
+}
+
+/* 他者の吹き出し */
+.chat__container .chat__left .text::after {
+  content: '';
+  position: absolute;
+  display: block;
+  width: 0;
+  height: 0;
+  left: -10px;
+  top: 10px;
+  border-right: 20px solid #ffffff;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+}
+
+/* 自分の発言エリア */
+.chat__container .chat__right {
+    position: relative;
+    display: block;
+    margin: 5px 0;
+    max-width: 75%;
+    float: right;
+    margin-right: 15px;
+    clear: both;
+}
+
+/* 自分の発言エリア */
+.chat__container .chat__right .text {
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #8de045;
+  margin: 0;
+  margin-left: 80px;
+}
+
+/* 自分の吹き出し */
+.chat__container .chat__right .text::after {
+  content: '';
+  position: absolute;
+  display: block;
+  width: 0;
+  height: 0;
+  right: -10px;
+  top: 10px;
+  border-left: 20px solid #8de055;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+}
+
+/* 削除ボタン */
+.chat__container .chat__right .delete {
+  width: 60px;
+  text-align: center;
+  display: block;
+  left: -160px;
+  bottom: 0px;
+  padding: 10px;
+  border: 1px solid #dddddd;
+  background-color: #dddddd;
+  position: absolute;
+  margin-right: 0px;
+}
+
+/* 投稿日時エリア */
+.chat__container .chat__right .date {
+  content: '';
+  position: absolute;
+  display: block;
+  width: 150px;
+  text-align: right;
+  left: -80px;
+  bottom: 0px;
+  font-size: 80%;
+  color: #ffffff;
+}
+
+/* 発言入力エリア */
+.chat__container .chat__input__container {
+  padding: 10px;
+}
+
+/* メッセージ入力欄 */
+input#chat_comment {
+  font-size: 100%;
+  width: 80%;
+  border-radius:10px;
+  border: solid 3px; 
+  box-shadow: 1px 1px;
+  padding: 2px 8px;
+  background-color: #FFFFFF;
+}
+
+/* メッセージ入力欄(入力フォーカスがされているとき) */
+input#chat_comment:focus {
+  outline: none;
+}
+
+/* メッセージ送信ボタン */
+input#chat_submit {
+  font-size: 100%;
+  border-radius:5px;
+}

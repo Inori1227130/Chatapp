@@ -1,0 +1,266 @@
+{% extends "mychat/base.html" %}
+{% load static %}
+
+{% block title %}チャット画面{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script type="text/javascript" img src="{% static "images/person_icon.png" %}"></script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/mychat.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% if room.name %}
+  <h1>ルーム名：{{room.name}}</h1>
+{% endif %}
+
+{% if username %}
+  <p>ユーザ名：{{ username }}</p>
+{% endif %}
+
+<div class="chat-room">
+    <div class="chat__container">
+        <div class="chat__contents scroll" id="chat_main">
+            メッセージはここに表示される
+
+        </div>
+        
+        <div class="chat__input__container">
+          <input type="text" placeholder="発言をどうぞ" name="comment" id="chat_comment">
+          <input type="button" value="送信" id="chat_submit" onclick="submitChatMessage()">
+
+        </div>
+    </div>
+</div>
+
+
+<p><a href="{% url 'mychat:main' %}">退室する</a></p>
+
+{% for item in message %}
+{{ item }}<br/>
+{% endfor %}
+
+<!-- チャットの処理スクリプトBEGIN -->
+<script type="text/javascript">
+    ////////////////////////////////////////////////////////////////////////////
+    // チャットログ更新処理
+    ////////////////////////////////////////////////////////////////////////////
+    function setChatLog(chat_log){
+        // 画面に書き出すHTMLを入れる変数
+        let result = "";
+
+        // [11-1-1] クッキーからユーザ名を取得
+        let user_name =  $.cookie("USER")||"None";
+
+        // [11-1-2] 引数で受け取ったJSONデータ(chat_log)からログデータのみを抽出
+	    let logs = (chat_log||{}).log|| [];
+
+        // ログをチャット画面に表示する
+        logs.forEach(function (inner, index, data) {
+            // ログのユーザ名(user)とログインしているユーザが一致する場合
+            if(inner["user"] == user_name){
+                //======================================================
+                // [11-1-3] ログから各データを抜き出し以下の変数に格納する(コメントは外す)
+                let mes_id = inner["id"];
+                let mes_user = inner["user"];
+                let message = inner["message"];
+                let date = inner["date"];
+                //======================================================
+
+                // チャット画面に表示する自分の発言ログの開始タグ
+                result += `<div class="chat__right" onclick="showDeleteButton('mes${mes_id}')">`;
+                
+                // メッセージ本体
+                //======================================================
+                // [11-1-4] メッセージ仕様の指示に従って各データを出力するHTMLをここに挿入する
+                result += '<div class=\"text\">'+message+'</div>';
+                result += '<span class=\"date\">'+date+'</span>';
+                result += `<div class="delete" id="mes${mes_id}" style="display:none;">`; 
+                result += `<a href="javascript:deleteChatMessage(${mes_id});">削除</a>`;
+                result += '</div>';
+
+                //======================================================
+
+                // 発言ログの終了タグ
+                result += "</div>";
+            }
+            // 発言ログの発言者名(user)がログインユーザではない場合の発言設定
+            else{
+                //======================================================
+                // [11-1-5] ログから各データを抜き出し以下の変数に格納する(コメントは外す)
+                let mes_id = inner["id"]; 
+                let user = inner["user"];
+                let message = inner["message"];
+                let date = inner["date"];
+                //======================================================
+
+                // チャット画面に表示する他者の発言ログの開始タグ
+                result += "<div class=\"chat__left\">";
+
+                // メッセージ本体
+                //======================================================
+                // [11-1-6] メッセージ仕様の指示に従って各データを出力するHTMLをここに挿入する
+                result += '<figure><img src="/static/images/person_icon.png" alt="アイコン" class="icon"></figure>';
+                result += '<div class=\"chat__left-text\">';
+                result += '<div class="name">' + user + ' (<span class="date">' + date + '</span>)</div>';
+                result += '<div class=\"text\">'+message+'</div>';
+                result += "</div>"; 
+
+                //======================================================
+
+                // 発言ログの終了タグ
+                result += "</div>";
+            }
+        });
+
+        // resultの内容でチャット欄を更新
+        $("#chat_main").html(result);
+
+        // チャット欄のスクロール位置を末尾に設定
+        $("#chat_main").scrollTop($('#chat_main').get(0).scrollHeight);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // 削除ボタン可視化
+    ////////////////////////////////////////////////////////////////////////////
+    function showDeleteButton(target_message){
+        if(document.getElementById(target_message).style.display == "inline"){
+	        document.getElementById(target_message).style.display = "none";
+	    }else{
+	        document.getElementById(target_message).style.display = "inline";
+	    }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // チャットログ取得処理
+    ////////////////////////////////////////////////////////////////////////////
+    function getChatMessage(){
+        //======================================================
+        // [10-3] Ajax通信を以下の記入エリアに書き入れる
+        // URL指定は、ルーティングnameをmychat:getChatMessageとし、ルームIDを引数として渡す
+        // typeは GET を指定
+        // datatypeは JSON を指定
+        // 送信時のdataは {} を指定(なにも渡さない)
+        // 通信成功時は setChatLog関数を実行する。引数はサーバから受信したデータをそのまま渡す。
+        // 通信失敗時には alert("getChatMessageのAjax通信に失敗しました."); を入れる。
+
+        $.ajax({
+           url: "{% url 'mychat:getChatMessage' room.id %}",
+           type: 'GET',
+           dataType: 'JSON',
+           data: {},
+        })
+
+        .done(function(data) {
+            //alert(JSON.stringify(data));
+            setChatLog(data);
+        })
+
+        .fail(function() {
+           alert("getChatMessageのAjax通信に失敗しました.");
+        });
+
+
+        //======================================================
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // メッセージ投稿処理
+    ////////////////////////////////////////////////////////////////////////////
+    function submitChatMessage(){
+        //======================================================
+        // [9-3-1] 以下のコメントを外して、メッセージ入力欄の内容を取得してmessageに代入する
+        let message = $("#chat_comment").val();
+        //======================================================
+
+        //======================================================
+        // 「メッセージが未記入のとき」は投稿処理はせずreturnで関数を終了する。
+        // [9-3-2] 以下の3行のコメントを外し( )に条件を記述する
+        if(message ==''){
+            return;
+        }
+        //======================================================
+
+        //======================================================
+        // [9-3-3] Ajax通信を以下の記入エリアに書き入れる
+        // ルーティングnameはsubmitChatMessage、ルームIDを引数として渡す
+        // typeは GET を指定
+        // datatypeは JSON を指定
+        // 送信時のdataは { 'message': message } を指定
+        // 通信成功時は以下を実行する。
+        // (1) setChatLog関数を実行する。引数はサーバから受信したデータをそのまま渡す。
+        // (2) チャットのメッセージ入力欄を空っぽにする
+        // 通信失敗時の処理には alert("submitChatMessageのAjax通信に失敗しました."); を入れる。
+        $.ajax({
+           url: "{% url 'mychat:submitChatMessage' room.id %}",
+           type: 'GET',
+           dataType: 'JSON',
+           data: { 'message': message }
+        })
+
+        .done(function(data) {
+           setChatLog(data);
+           $("#chat_comment").val('');
+        })
+        .fail(function() {
+           alert("submitChatMessageのAjax通信に失敗しました.");
+        });
+
+
+        //======================================================
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // チャット発言削除処理
+    ////////////////////////////////////////////////////////////////////////////
+    function deleteChatMessage(mes_id){
+        //======================================================
+        // Ajax通信を以下の記入エリアに書き入れる
+        // ルーティングnameはdeleteChatMessage、ルームIDを引数として渡す
+        // typeは GET を指定
+        // datatypeは JSON を指定
+        // 送信時のdataは { 'mes_id': mes_id } を指定(mes_idは削除したいメッセージのID)
+        // 通信成功時はsetChatLog関数を実行する。引数はサーバから受信したデータをそのまま渡す。
+        // 通信失敗時の処理には alert("deleteChatMessageのAjax通信に失敗しました."); を入れる。
+        $.ajax({
+           url: "{% url 'mychat:deleteChatMessage' room.id %}",
+           type: 'GET',
+           dataType: 'JSON',
+           data: { 'mes_id': mes_id }
+        })
+
+        .done(function(data) {
+           setChatLog(data);
+        })
+        .fail(function() {
+           alert("deleteChatMessageのAjax通信に失敗しました.");
+        });
+
+
+        //======================================================
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // 定期的にログを更新するように設定 (STEP13まで完成後コメント /* と */ を外す)
+    ////////////////////////////////////////////////////////////////////////////
+    window.addEventListener('DOMContentLoaded', function(){
+        // 10秒ごとにチャットログの更新を実行
+        setInterval(() => {
+            getChatMessage();
+        }, 10000);
+    });
+
+    ////////////////////////////////////////////////////////////////////////////
+    // ページ読込直後の実行処理(ページを開いた初回に1度だけ実行される)
+    ////////////////////////////////////////////////////////////////////////////
+    getChatMessage();
+
+</script>
+<!-- チャットの処理スクリプトEND -->
+
+{% endblock %}

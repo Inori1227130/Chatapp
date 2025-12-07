@@ -1,0 +1,25 @@
+{% extends "mychat/base.html" %}
+
+{% block title %}新規ルーム登録画面{% endblock %}
+
+{% block content %}
+<h1>新規ルーム登録画面</h1>
+
+<form  method="post" action="{%url 'mychat:addroom'%}">
+    {% csrf_token %}
+    <p>
+    ルーム名
+    <input type="text" name="name" size="15">
+    </p>
+
+    <p><input type="submit" value="作成"></p>
+</form>
+<hr/>
+
+<p><a href="{% url 'mychat:main' %}">戻る</a></p>
+
+{% for item in message %}
+{{ item }}<br/>
+{% endfor %}
+
+{% endblock %}

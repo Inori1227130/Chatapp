@@ -1,0 +1,22 @@
+{% extends "mychat/base.html" %}
+
+{% block title %}ユーザ登録結果画面{% endblock %}
+
+{% block content %}
+<h1>ユーザ登録結果画面</h1>
+
+{% if error_message is not None %}
+   {% for message in error_message %}
+     <p style="color: red;">{{message}}</p>
+   {% endfor %}
+{% endif %}
+
+{% if success_message %}
+   {% for message in success_message %}
+     <p style="color: black;">{{message}}</p>
+   {% endfor %}
+{% endif %}
+
+<p><a href="{% url 'mychat:main' %}">戻る</a></p>
+
+{% endblock %}

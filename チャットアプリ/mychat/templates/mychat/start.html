@@ -1,0 +1,29 @@
+{% extends "mychat/base.html" %}
+
+{% block title %}ログイン画面{% endblock %}
+
+{% block content %}
+<h1>ログイン画面</h1>
+
+<form  method="post" action="{%url 'mychat:main'%}">
+    {% csrf_token %}
+    <p>
+    ユーザ名
+    <input type="text" name="name" size="15">
+    </p>
+
+    <p>パスワード<input type="password" name="password" size="15"></p>
+    <input type="hidden" name="login" value="on">
+    <p><input type="submit" value="ログイン"></p><br><br>
+</form>
+<hr/>
+
+{% if error_message is not None %}
+   {% for message in error_message %}
+     <p style="color: red;">{{message}}</p>
+   {% endfor %}
+{% endif %}
+
+<p><a href="{% url 'mychat:createuser' %}">新規ユーザ登録</a></p>
+
+{% endblock %}
